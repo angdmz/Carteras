@@ -1,0 +1,8 @@
+Django==3.0.2
+djangorestframework==3.11.0
+djangorestframework-simplejwt==4.4.0
+django-cors-headers==2.4.0
+drf-yasg==1.17.0
+psycopg2==2.7.6.1
+psycopg2-binary==2.7.6.1
+cryptography==2.8

@@ -1,0 +1,12 @@
+version: "3"
+services:
+  db:
+    image: "postgres:10.3-alpine"
+    restart: unless-stopped
+    container_name: carteras-db
+    environment:
+      - POSTGRES_USER=carteras
+      - POSTGRES_PASSWORD=secret123
+      - POSTGRES_DB=carteras
+    ports:
+      - "5437:5432"
