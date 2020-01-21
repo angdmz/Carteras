@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'drf_yasg',
     'rest_framework',  # API
+    'clients',
+    'portfolios'
 ]
 
 MIDDLEWARE = [
@@ -156,7 +158,7 @@ SIMPLE_JWT = {
     # 'SIGNING_KEY': "".join(os.getenv('SIGNING_KEY', 'SIGNING_KEY').split('\n')) ,
     'SIGNING_KEY': None,
     # 'VERIFYING_KEY': "".join(os.getenv('VERIFYING_KEY', 'VERIFYING_KEY').split('\n')) ,
-    'VERIFYING_KEY': open('/jwt-key.pub','r').read() ,
+    'VERIFYING_KEY': open('jwt-key.pub','r').read() ,
     'AUDIENCE': None,
     'ISSUER': None,
 

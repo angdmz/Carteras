@@ -8,3 +8,10 @@ class Client(models.Model):
     id_last_user = models.IntegerField(null=True)
     add_date = models.DateTimeField(auto_now_add=True)
     last_modification = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'clients'
+        verbose_name = "Cliente"
+
+    def __str__(self):
+        return self.name

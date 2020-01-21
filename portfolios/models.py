@@ -11,3 +11,6 @@ class Portfolio(models.Model):
     id_last_user = models.IntegerField(null=True)
     add_date = models.DateTimeField(auto_now_add=True)
     last_modification = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "{} de {}".format(self.name, self.client)
