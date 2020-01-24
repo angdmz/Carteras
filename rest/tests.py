@@ -3,6 +3,7 @@ from collections import namedtuple
 from django.test import TestCase, RequestFactory
 
 # Create your tests here.
+from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory
 from rest_framework_simplejwt.models import TokenUser
 
@@ -54,6 +55,5 @@ class TestClientView(TestCase):
     def test_no_token_provided(self):
         request = self.request_factory.get('/v1/clients/')
         view = ClientViewSet()
-        view.setup(request)
-        response = view.as_view()(request)
+        response = view.dispatch(request)
         self.assertEqual(401, response.status_code)
