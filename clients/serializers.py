@@ -6,7 +6,7 @@ from portfolios.serializers import PortfolioSerializer
 
 class ClientSerializer(serializers.ModelSerializer):
 
-    portfolios = PortfolioSerializer(many=True)
+    portfolios = PortfolioSerializer(many=True, read_only=True)
 
     class Meta:
         model = Client

@@ -21,7 +21,7 @@ from rest_framework import permissions, routers
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from rest.views import ClientViewSet
+from rest.views import ClientViewSet, PortfoliosViewSet
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -37,6 +37,7 @@ schema_view = get_schema_view(
 
 router = routers.DefaultRouter()
 router.register(r'clients', ClientViewSet)
+router.register(r'portfolios', PortfoliosViewSet)
 
 urlpatterns = [
     url(r'^docs(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
