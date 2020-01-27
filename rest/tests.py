@@ -4,7 +4,7 @@ from django.test import TestCase, RequestFactory
 
 # Create your tests here.
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_200_OK
+from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_200_OK, HTTP_201_CREATED
 from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework_simplejwt.models import TokenUser
 
@@ -79,22 +79,24 @@ class TestClientView(TestCase):
         self.assertEqual(HTTP_403_FORBIDDEN, result.status_code)
 
     def test_post_agente_forbidden(self):
-        url = reverse('client-create')
+        url = reverse('client-list')
         user = TokenUser({'roles': ['Agente']})
         self.api_client.force_authenticate(user=user)
         result = self.api_client.post(url, {'name': "Poronga"})
         self.assertEqual(HTTP_403_FORBIDDEN, result.status_code)
 
     def test_post_supervisor_forbidden(self):
-        url = reverse('client-create')
+        url = reverse('client-list')
         user = TokenUser({'roles': ['Supervisor']})
         self.api_client.force_authenticate(user=user)
         result = self.api_client.post(url, {'name': "Poronga"})
         self.assertEqual(HTTP_403_FORBIDDEN, result.status_code)
 
     def test_post_success(self):
-        url = reverse('client-create')
+        url = reverse('client-list')
         user = TokenUser({'roles': ['Backoffice']})
         self.api_client.force_authenticate(user=user)
         result = self.api_client.post(url, {'name': "Poronga"})
+        self.assertEqual(HTTP_201_CREATED, result.status_code)
+        result = self.api_client.get(url)
         self.assertEqual(HTTP_200_OK, result.status_code)
