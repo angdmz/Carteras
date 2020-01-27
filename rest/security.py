@@ -12,4 +12,4 @@ from clients.serializers import ClientSerializer
 class IsSupervisorOrHigher(BasePermission):
 
     def has_permission(self, request, view):
-        return any(x in request.user.token.get('roles', []) for x in ['Administrador', 'Jefe de operaciones', 'Supervisor', 'Backoffice', 'Desarrollador', 'Operaciones'])
+        return request.user.is_authenticated and any(x in request.user.token.get('roles', []) for x in ['Administrador', 'Jefe de operaciones', 'Supervisor', 'Backoffice', 'Desarrollador', 'Operaciones'])

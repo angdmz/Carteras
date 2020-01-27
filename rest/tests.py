@@ -4,7 +4,8 @@ from django.test import TestCase, RequestFactory
 
 # Create your tests here.
 from rest_framework.reverse import reverse
-from rest_framework.test import APIRequestFactory
+from rest_framework.status import HTTP_401_UNAUTHORIZED
+from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework_simplejwt.models import TokenUser
 
 from clients.models import Client
@@ -49,11 +50,16 @@ class TestPermission(TestCase):
 class TestClientView(TestCase):
 
     def setUp(self) -> None:
-        self.request_factory = APIRequestFactory()
+        self.api_client = APIClient()
         Client.objects.create(name="Pruebita", last_user="admin", id_last_user=1)
 
     def test_no_token_provided(self):
-        request = self.request_factory.get('/v1/clients/')
-        view = ClientViewSet()
-        response = view.dispatch(request)
-        self.assertEqual(401, response.status_code)
+        url = reverse('client-list')
+        result = self.api_client.get(url)
+        self.assertEqual(HTTP_401_UNAUTHORIZED, result.status_code)
+
+    def test_invalid_token(self):
+        url = reverse('client-list')
+        self.api_client.credentials(HTTP_AUTHORIZATION='asd')
+        result = self.api_client.get(url)
+        self.assertEqual(HTTP_401_UNAUTHORIZED, result.status_code)
