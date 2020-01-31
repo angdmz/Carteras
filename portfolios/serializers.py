@@ -1,18 +1,34 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
+from clients.models import Client
 from portfolios.models import Portfolio
 
 
 class PortfolioSerializer(serializers.ModelSerializer):
 
+    client_manager = Client.objects
+    portfolio_manager = Portfolio.objects
+
     def get_client_name(self, obj):
         return obj.client.name if obj.client is not None else None
 
-    def get_client_id(self, obj):
-        return obj.client_id
-
     client_name = SerializerMethodField()
+
+    def validate(self, attrs):
+        if not 'client_id' in attrs:
+            raise serializers.ValidationError("No client id set")
+
+        if not self.client_manager.filter(pk=attrs['client_id']).exists():
+            raise serializers.ValidationError("No client with {}".format(str(attrs['client_id'])))
+
+        return attrs
+
+    def create(self, validated_data):
+        client = self.client_manager.get(pk=validated_data['client_id'])
+        validated_data['client'] = client
+        portfolio = self.portfolio_manager.create(**validated_data)
+        return portfolio
 
     class Meta:
         model = Portfolio

@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED
@@ -59,9 +61,12 @@ class TestClientView(TestCase):
         self.api_client.force_authenticate(user=user)
         result = self.api_client.post(url, {'name': "Poronga"})
         self.assertEqual(HTTP_201_CREATED, result.status_code)
+        decoded = json.loads(result.content.decode())
+        self.assertIn('id', decoded)
         result = self.api_client.get(url)
         self.assertEqual(HTTP_200_OK, result.status_code)
-
+        decoded = json.loads(result.content.decode())
+        self.assertEqual(2, len(decoded))
 
 class TestPortfolioView(TestCase):
 
@@ -104,9 +109,29 @@ class TestPortfolioView(TestCase):
 
     def test_post_success(self):
         url = reverse('portfolio-list')
-        user = TokenUser({'roles': ['Backoffice']})
+        user = TokenUser({'roles': ['Administrador']})
         self.api_client.force_authenticate(user=user)
-        result = self.api_client.post(url, {'name': "Poronga"})
+        result = self.api_client.post(url, {'name': "Poronga", "client_id":1})
         self.assertEqual(HTTP_201_CREATED, result.status_code)
         result = self.api_client.get(url)
         self.assertEqual(HTTP_200_OK, result.status_code)
+
+    def test_filters(self):
+        url_portfolio = reverse('portfolio-list')
+        url_client = reverse('client-list')
+        user = TokenUser({'roles': ['Jefe de operaciones']})
+        self.api_client.force_authenticate(user=user)
+        results = [self.api_client.post(url_client, {'name': 'Cliente {}'.format(str(i))}) for i in range(5)]
+        ids = []
+        for r in results:
+            decoded_client = json.loads(r.content.decode())
+            portfolio_results = [self.api_client.post(url_portfolio,
+                                                      {'name':'Cartera {}'.format(str(i)), 'client_id': decoded_client['id']}
+                                                      ) for i in range(5)]
+            ids.append(decoded_client['id'])
+        for i in ids:
+            portfolios = self.api_client.get(url_portfolio, {'client_id': i})
+            decoded_portfolios = json.loads(portfolios.content.decode())
+            self.assertEqual(5, len(decoded_portfolios))
+            for dp in decoded_portfolios:
+                self.assertEqual(dp['client_id'], i)
