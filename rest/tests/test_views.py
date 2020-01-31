@@ -1,79 +1,11 @@
-from collections import namedtuple
-
-from django.contrib.auth.models import AnonymousUser
-from django.test import TestCase, RequestFactory
-
-# Create your tests here.
+from django.test import TestCase
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_200_OK, HTTP_201_CREATED
-from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_201_CREATED
+from rest_framework.test import APIClient
 from rest_framework_simplejwt.models import TokenUser
 
 from clients.models import Client
 from portfolios.models import Portfolio
-from rest.security import ClientServicePermission
-from rest.views import ClientViewSet
-
-
-class TestClientPermission(TestCase):
-
-    def create_mocks(self, user, action):
-        request = namedtuple('Request', 'user view',)
-        view = namedtuple('View', 'action',)
-        view.action = action
-        request.user = user
-        return request, view
-
-    def test_is_supervisor(self):
-        permission = ClientServicePermission()
-        user = TokenUser({'roles':['Supervisor']})
-        request, view = self.create_mocks(user, 'list')
-        has_permission = permission.has_permission(request, view)
-        self.assertTrue(has_permission)
-        request, view = self.create_mocks(user, 'create')
-        has_permission = permission.has_permission(request, view)
-        self.assertFalse(has_permission)
-
-    def test_is_agente(self):
-        permission = ClientServicePermission()
-        user = TokenUser({'roles':['Agente']})
-        request, view = self.create_mocks(user, 'list')
-        has_permission = permission.has_permission(request, view)
-        self.assertFalse(has_permission)
-        request, view = self.create_mocks(user, 'create')
-        has_permission = permission.has_permission(request, view)
-        self.assertFalse(has_permission)
-
-
-    def test_is_agente_and_backoffice(self):
-        permission = ClientServicePermission()
-        user = TokenUser({'roles':['Agente', 'Backoffice']})
-        request, view = self.create_mocks(user, 'list')
-        has_permission = permission.has_permission(request, view)
-        self.assertTrue(has_permission)
-        request, view = self.create_mocks(user, 'create')
-        has_permission = permission.has_permission(request, view)
-        self.assertTrue(has_permission)
-
-    def test_no_role_assigned(self):
-        permission = ClientServicePermission()
-        user = TokenUser({})
-        request, view = self.create_mocks(user, 'list')
-        has_permission = permission.has_permission(request, view)
-        self.assertFalse(has_permission)
-        request, view = self.create_mocks(user, 'create')
-        has_permission = permission.has_permission(request, view)
-        self.assertFalse(has_permission)
-
-    def test_unauthenticated(self):
-        permission = ClientServicePermission()
-        user = AnonymousUser()
-        request, view = self.create_mocks(user, 'list')
-        has_permission = permission.has_permission(request, view)
-        self.assertFalse(has_permission)
-        request, view = self.create_mocks(user, 'create')
-        has_permission = permission.has_permission(request, view)
-        self.assertFalse(has_permission)
 
 
 class TestClientView(TestCase):
@@ -129,6 +61,7 @@ class TestClientView(TestCase):
         self.assertEqual(HTTP_201_CREATED, result.status_code)
         result = self.api_client.get(url)
         self.assertEqual(HTTP_200_OK, result.status_code)
+
 
 class TestPortfolioView(TestCase):
 
